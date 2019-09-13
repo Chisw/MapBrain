@@ -3,7 +3,8 @@
 <head>
     <title>Map Brain - mbn.im</title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta http-equiv="Access-Control-Allow-Origin" content="*">
+    <meta name="viewport" content="width=1440, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <!-- <link href="" rel="shortcut icon" /> -->
 <style>
 
@@ -17,24 +18,120 @@
 html, body {
   width: 100%;
   height: 100%;
-  min-width: 1024px;
+  min-width: 1200px;
   min-height: 800px;
-  background: #484848;
+  background: #073042;
+}
+
+body {
+  padding-top: 80px;
+}
+
+.center {
+  margin: 0 auto;
+  width: 1200px;
 }
 
 .module {
   width: 100%;
-  height: 512px;
-  border-radius: 6px;
-  box-shadow: 0 5px 12px rgba(0,0,0, .8);
-  background: #fff;
-  overflow: hidden;
+  padding: 80px 0;
+}
+.module.fetcher { background-color: #3ddc84; }
+.module.viewer { background-color: #4285f4; }
+
+.module .title {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 400;
+  color: #fff;
 }
 
-#center {
-  margin: 0 auto;
-  width: 1024px;
+.module .subtitle {
+  margin: 6px 0 32px 0;
+  text-align: center;
+  font-size: 20px;
+  font-weight: 200;
+  color: rgba(255,255,255, .7);
 }
+
+.header {
+  position: fixed;
+  z-index: 9;
+  top: 0;
+  width: 100%;
+  height: 80px;
+  line-height: 80px;
+  color: #fff;
+  background: #073042;
+}
+
+.steper {
+  margin-bottom: 32px;
+  text-align: center;
+  color: #fff;
+  font-size: 10px;
+}
+
+.steper .item {
+  display: inline-block;
+  border: 1px solid #fff;
+  border-radius: 20px;
+  padding: 2px 8px;
+  font-size: 14px;
+}
+
+.steper span + span {
+  margin-left: 12px;
+}
+
+.steper .item.active {
+  color: #3ddc84;
+  background: #fff;
+}
+
+.wave {
+  font-size: 0;
+  height: 200px;
+  overflow: hidden;
+  background: url(./images/wave-blue.svg) no-repeat center top;
+  background-size: 2560px;
+  background-color: #3ddc84;
+}
+
+.footer {
+  width: 100%;
+  height: 100px;
+}
+
+
+.choose-view {
+  border: 4px solid #fff;
+  box-sizing: border-box;
+  box-sizing: #348a5b;
+  background: #fff;
+  box-shadow: 0 10px 30px rgba(10,30,60, .3);
+}
+
+.choose-view .map {
+  width: 100%;
+  height: 400px;
+}
+
+.choose-view .view-console {
+  margin-top: 4px;
+  display: flex;
+}
+
+.choose-view .view-console .console-left {
+  font-size: 0;
+}
+
+.choose-view .view-console #view-thumbnail {
+  width: 400px;
+  height: 200px;
+}
+
+
 
 #pool {
   font-size: 0;
@@ -44,98 +141,207 @@ html, body {
   display: none;
 }
 
+
+.temp {
+  width: 100%;
+  height: 600px;
+  background: #fff;
+  overflow: hidden;
+}
+
+
 </style>
 </head>
 <body>
 
-  <div id="center">
-
-    <iframe id="iframe" class="module" src="https://map.baidu.com/"></iframe>
-
-    <div id="pool" class="module">
-        
+  <div class="header">
+    <div class="center">
+      <span>MapBrain</span>
+      <a>Fetcher</a>
+      <a>Viewer</a>
     </div>
-  
-    
-    <button onclick="fetch()">Fetch</button>
-    <button onclick="exportImg()">Export</button>
-  
-    <img id="export" class="module" src="" >
-      
-    <p>jisuowei.com</p>
-
-    <canvas id="canvas" width="4096" height="2048" ></canvas>
-      
   </div>
 
+  <div class="module fetcher">
+    <div class="center">
+
+      <h3 class="title">Fetcher</h3>
+      <h4 class="subtitle">3 steps get your favarite panoramic image</h4>
+
+      <div class="steper">
+        <span class="item active">1. Choose view</span>
+        <span>▶</span>
+        <span class="item">2. Wait fetching</span>
+        <span>▶</span>
+        <span class="item">3. Save image</span>
+      </div>
+
+      <div class="choose-view">
+          
+          <div class="map" id="map"></div>
+
+          <div class="view-console">
+            <div class="console-left">
+              <img id="view-thumbnail" src="" />
+            </div>
+            <div class="console-right">
+                <input id="pano-id" >
+                <input id="pano-lng" >
+                <input id="pano-lat" >
+                <button id="btn-fetch">Fetch</button>
+                <button id="btn-export">Export</button>
+            </div>
+          </div>
+      </div>
+  
+      <div id="pool" class="temp"></div>
+    
+      <img id="export" class="temp" src="" >
+        
+    </div>
+  </div>
+
+  <div class="wave"></div>
+
+  <div class="module viewer">
+      <div class="center">
+          <h3 class="title">Viewer</h3>
+          <h4 class="subtitle">View your panoramic image online, or download Viewer.zip for offline using</h4>
+      </div>
+  </div>
+
+
+  <div class="footer">
+    <div class="center">
+        <p>jisuowei.com</p>
+    </div>
+  </div>
+
+  <canvas id="canvas" width="4096" height="2048" ></canvas>
+
 </body>
+<script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=hWlAC3G3AFjWt3QGjB5o7eK4HIqzMhQZ"></script>
 <script src="http://apps.bdimg.com/libs/jquery/2.1.1/jquery.min.js"></script>
 <script type="text/javascript">
+(function() {
 
-    const UNIT_W = 512;
-    const UNIT_H = 512;
-    const pitchs = [-45, 0, 45, 90];
-    const headings = [0, 90, 180, 270, 360];
-    let srcs = [];
+  const MapBrain = {
 
-    for ( let i = 0, len = 4; i < len; i++ ) {
-        for ( let _i = 0, _len = 8; _i < _len; _i ++ ) {
-            srcs.push({
-                row: i,
-                col: _i,
-                src: `https://mapsv1.bdimg.com/?qt=pdata&sid=09002900121705161534243787H&pos=${i}_${_i}&z=4`
-            });
-        }
-    }
+    init() {
+      this.initMap();
+      this.initEvent();
+    },
 
-    function appendImg() {
-        setTimeout( () => {
-            const first = srcs.shift()
-            if ( first ) {
-                $('#pool').append(`<img crossOrigin="Anonymous" width="128" row="${first.row}" col="${first.col}" onload="appendImg()" src="${first.src}" />`)
-            } else {
-                drawImage()
-            }
-        }, 10)
-    }
+    initMap() {
+      var map = new BMap.Map('map');
+      map.centerAndZoom(new BMap.Point(120.616675, 31.338262), 12);
+      map.enableScrollWheelZoom(true);
+      
+      map.addTileLayer(new BMap.PanoramaCoverageLayer());  // 覆盖区域图层测试
 
-    function fetch() {
-        appendImg()
-    }
+      // var stCtrl = new BMap.PanoramaControl(); //构造全景控件
+      // stCtrl.setOffset(new BMap.Size(20, 20));
+      // map.addControl(stCtrl);//添加全景控件
 
+      map.addEventListener('click', (event) => {
+        this.getPanoID(event.point);
+      })
+    },  // initMap
 
-
-    function drawImage() {
-        const ctx = document.querySelector('#canvas').getContext('2d')
-        const images = document.querySelectorAll('#pool img');
-
-        images.forEach( img => {
-            const row = img.getAttribute('row')
-            const col = img.getAttribute('col')
-            // img.setAttribute("crossOrigin",'Anonymous')
-            ctx.drawImage(img, UNIT_W * col, UNIT_H * row, UNIT_W, UNIT_H)
+    initEvent() {
+      $('body')
+        .on('click', '#btn-fetch', () => {
+          this.fetch();
         })
-    }
+        .on('click', '#btn-export', () => {
+          this.export();
+        })
+    },  // initEvent
 
-    function exportImg() {
-        grab(document.querySelector('#canvas').toDataURL('image/jpg'))
-    }
+    getPanoID(point) {
+      const { lng, lat } = point;
 
+      var panoramaService = new BMap.PanoramaService();
+      panoramaService.getPanoramaByLocation(new BMap.Point(lng, lat), function(data){
+        var panoramaInfo="";
+        if (data !== null) {
+          $('#pano-id').val(data.id);
+          $('#pano-lng').val(data.position.lng);
+          $('#pano-lat').val(data.position.lat);
+          $('#view-thumbnail').attr('src', `https://mapsv1.bdimg.com/?qt=pdata&sid=${data.id}&pos=0_0&z=1`);
+        } else {
 
-    function grab (base64, name = 'export.jpg') {
-        // console.log(base64)
-        $('#export').attr('src', base64)
-        return
-        const link = document.createElement('a')
-        link.setAttribute('href', base64)
-        link.setAttribute('download', name)
-        link.dispatchEvent(new MouseEvent(`click`, { bubbles: true, cancelable: true, view: window }))
+        }
+      });
+    },  // getPanoID
+
+    fetch() {
+      let units = [];
+
+      for ( let row = 0, rows = 4; row < rows; row++ ) {
+        for ( let col = 0, cols = 8; col < cols; col ++ ) {
+          units.push({
+            row,
+            col,
+            src: `https://mapsv1.bdimg.com/?qt=pdata&sid=${$('#pano-id').val()}&pos=${row}_${col}&z=4`
+          });
+        }
       }
 
+      this.units = units;
+      this._appendImg()
+    },  // fetch
 
+    _appendImg() {
+      setTimeout( () => {
+            const first = this.units.shift()
+            if ( first ) {
+              $('#pool').append(
+                `<img 
+                  crossOrigin="Anonymous" 
+                  width="128" 
+                  row="${first.row}" 
+                  col="${first.col}" 
+                  onload="MapBrain._appendImg()" 
+                  src="${first.src}" 
+                />`
+              )
+            } else {
+              this.drawCanvas()
+            }
+        }, 10)
+    },  // _appendImg
 
+    drawCanvas() {
+      const ctx = document.querySelector('#canvas').getContext('2d')
+      const images = document.querySelectorAll('#pool img');
 
+      images.forEach( img => {
+        const row = img.getAttribute('row')
+        const col = img.getAttribute('col')
+        ctx.drawImage(img, 512 * col, 512 * row, 512, 512)
+      })
+    },  // drawCanvas
 
+    export() {
+      const base64 = document.querySelector('#canvas').toDataURL('image/jpg');
+      $('#export').attr('src', base64)
+      // this.grab()
+    },  // export
 
+    grab(base64, name = 'export.jpg') {
+      const link = document.createElement('a')
+      link.setAttribute('href', base64)
+      link.setAttribute('download', name)
+      link.dispatchEvent(new MouseEvent(`click`, { bubbles: true, cancelable: true, view: window }))
+    },  // grab
+
+  };
+
+  window.MapBrain = MapBrain;
+
+  MapBrain.init();
+
+} ());
 </script>
 </html>
