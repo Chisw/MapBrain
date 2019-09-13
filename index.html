@@ -3,7 +3,7 @@
 <head>
     <title>Map Brain - mbn.im</title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-    <meta name="viewport" content="width=1440, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=1">
     <link href="./images/favicon.ico" rel="shortcut icon" />
 <style>
 
@@ -63,7 +63,7 @@ body {
 }
 
 .github a {
-  font-size: 14px;
+  font-size: 12px;
 }
 
 .navi a:hover {
@@ -90,6 +90,10 @@ body {
   font-size: 20px;
   font-weight: 200;
   color: rgba(255,255,255, .7);
+}
+
+.module .subtitle.-bottom {
+  margin: 40px 0 0 0;
 }
 
 .header {
@@ -264,7 +268,7 @@ body {
 
 .choose-view .view-console .console-top::before,
 .choose-view .view-console .console-top::after {
-  content: '👈 Choose view by';
+  content: '👈 Choose a view by';
   display: inline-block;
   position: absolute;
   z-index: 9;
@@ -433,9 +437,36 @@ body {
   background: rgba(255,255,255, .1);
 }
 
+#mask {
+  display: none;
+  position: fixed;
+  z-index: 100;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 6rem 2rem;
+  background: #f86734;
+  opacity: .9;
+  color: #fff;
+  font-size: 3rem;
+  text-align: center;
+  line-height: 4rem;
+}
+
+@media (max-width: 768px) {
+  #mask {
+    display: block;
+  }
+}
+
 </style>
 </head>
 <body>
+
+  <div id="mask">
+    请在PC端浏览器地址栏中输入 mbn.im 访问
+  </div>
 
   <div class="header">
     <div class="center">
@@ -447,7 +478,7 @@ body {
         <a>Viewer</a>
       </div>
       <div class="right github">
-        <a href="#">Video</a>
+        <a href="https://www.bilibili.com/video/av67624282/" target="_blank">DemoVideo</a>
         <a href="https://github.com/Chisw/MapBrain" target="_blank">GitHub</a>
       </div>
     </div>
@@ -501,6 +532,7 @@ body {
         </div>
 
       </div>
+      <h4 class="subtitle -bottom">The size of generated image may be over 5M, <br>which is why use manual 'Save' instead of automatic 'Export'.</h4>
     </div>
   </div>
 
@@ -574,7 +606,7 @@ body {
       $('body')
         .on('click', '.navi a', function() {
           const index = $(this).index();
-          $('html, body').animate({scrollTop: [40, 1100][index] }, 230);
+          $('html, body').animate({scrollTop: [20, 1220][index] }, 230);
         })
         .on('click', '#btn-fetch', () => {
           if ( !$('#btn-fetch').hasClass('disabled') ) {
