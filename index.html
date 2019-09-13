@@ -101,8 +101,9 @@ body {
   padding: 6px 12px;
   height: 38px;
   line-height: 38px;
+  text-align: center;
   border-radius: 4px;
-  font-family: monospace, Consolas;
+  font-family: monospace, consolas;
 }
 
 .input[readonly] {
@@ -123,7 +124,7 @@ body {
   position: absolute;
   bottom: 0;
   width: 100%;
-  background-image: -webkit-linear-gradient(45deg, #3ddc84,#4285f4);
+  background-image: -webkit-linear-gradient(0deg, #3ddc84,#4285f4);
   text-align: center;
   color: #fff;
   height: 48px;
@@ -133,6 +134,19 @@ body {
   font-weight: 300;
   border-radius: 4px;
   user-select: none;
+}
+
+.btn:not(.disabled) {
+  animation: wave linear 1s infinite alternate;
+}
+
+@keyframes wave {
+  from {
+    background: #4285f4;
+  }
+  to {
+    background: #3ddc84;
+  }
 }
 .btn.disabled {
   filter: grayscale(90%);
@@ -174,7 +188,7 @@ body {
   background: #fff;
   box-shadow: 0 10px 30px rgba(10,30,60, .3);
   transition: all .5s;
-  border-radius: 2px;
+  border-radius: 6px;
 }
 
 .choose-view .map {
@@ -240,7 +254,7 @@ body {
   text-align: center;
   line-height: 552px;
   font-size: 60px;
-  background: rgba(61,220,132, .5);
+  background: rgba(61,220,132, .3);
   user-select: none;
 }
 
@@ -254,7 +268,7 @@ body {
   height: 512px;
   background: #fff;
   box-shadow: 0 10px 50px rgba(0,0,0, .2);
-  outline: 3px solid #fff;
+  outline: 4px solid #fff;
   font-size: 0;
   user-select: none;
 }
@@ -287,9 +301,62 @@ body {
   display: none;
 }
 
+#fetch-close,
+#fetch-status {
+  position: absolute;
+  z-index: -2;
+  top: 0;
+  left: -4px;
+  width: 100px;
+  height: 28px;
+  line-height: 28px;
+  background: #fff;
+  text-align: center;
+  border-top-right-radius: 4px;
+  border-top-left-radius: 4px;
+  font-size: 12px;
+  color: #666;
+  transition: all .23s;
+}
+
+#fetch-close {
+  left: auto;
+  right: -4px;
+  cursor: pointer;
+  color: #4285f4;
+}
+
+#fetch-close:hover {
+  color: #348a5b;
+}
+
+#fetch-close.show,
+#fetch-status.show {
+  top: -28px;
+  z-index: 10;
+}
+
+#export-bg {
+  position: absolute;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  font-size: 24px;
+  color: #ddd;
+  border-collapse: collapse;
+}
+
+#export-bg td {
+  border: 1px solid #efefef;
+  text-align: center;
+  width: 12.5%;
+  font-family: monospace, consolas;
+  background: #fff;
+}
+
 #export {
   position: absolute;
-  z-index: 9;
+  z-index: 10;
   display: none;
   width: 100%;
   height: 100%;
@@ -299,6 +366,9 @@ body {
   display: none;
 }
 
+.anchorBL {
+  display: none;
+}
 
 </style>
 </head>
@@ -337,8 +407,8 @@ body {
               <img id="view-thumbnail" src="" />
             </div>
             <div class="console-bottom">
-                <input id="pano-id" class="input" placeholder="Map pano_id" readonly>
-                <input id="pano-posi" class="input" placeholder="Map longitude, latitude" readonly>
+                <input id="pano-id" class="input" readonly>
+                <input id="pano-posi" class="input" readonly>
                 <input id="pano-id-user" class="input" placeholder="Paste pano_id here if you have" maxlength="27" style="margin-top: 12px;">
                 <span id="btn-fetch" class="btn disabled">Fetch</span>
             </div>
@@ -348,6 +418,14 @@ body {
         <div id="loading">🕒</div>
 
         <div id="fetch-pool">
+          <div id="fetch-status">Fetching ..</div>
+          <div id="fetch-close">Close</div>
+          <table id="export-bg">
+            <tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td></tr>
+            <tr><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td><td>16</td></tr>
+            <tr><td>17</td><td>18</td><td>19</td><td>20</td><td>21</td><td>22</td><td>23</td><td>24</td></tr>
+            <tr><td>25</td><td>16</td><td>27</td><td>28</td><td>29</td><td>30</td><td>31</td><td>32</td></tr>
+          </table>
           <img id="export" src="" >
         </div>
 
@@ -393,7 +471,7 @@ body {
     PANO_ID_RE: /^[0-9]{26}[A-Z]{1}$/,
 
     initMap() {
-      var map = new BMap.Map('map');
+      var map = new BMap.Map('map', {enableMapClick: false});
       map.centerAndZoom(new BMap.Point(120.616675, 31.338262), 14);
       map.enableScrollWheelZoom(true);
       
@@ -438,6 +516,9 @@ body {
 
           this.switchBtn();
         })
+        .on('click', '#fetch-close', () => {
+          this.reset();
+        })
     },  // initEvent
 
     stepTo(index) {
@@ -476,8 +557,8 @@ body {
           this.setThumbnail(data.id);
           this.pano_id = data.id;
         } else {
-          $('#pano-id').val('NO_MATCHED_POINT');
-          $('#pano-posi').val('TRY_AGAIN');
+          $('#pano-id').val('NO_MATCHED_POINT NO_MATCHED_POINT NO_MATCHED_POINT');
+          $('#pano-posi').val('TRY_AGAIN TRY_AGAIN TRY_AGAIN TRY_AGAIN TRY_AGAIN');
           this.setThumbnail();
           this.pano_id = '';
         }
@@ -492,6 +573,10 @@ body {
 
       setTimeout(() => {
         $('#fetch-pool').fadeIn();
+
+        setTimeout(() => {
+          $('#fetch-status').addClass('show');
+        }, 500);
 
         let units = [];
 
@@ -539,14 +624,25 @@ body {
         const row = img.getAttribute('row');
         const col = img.getAttribute('col');
         ctx.drawImage(img, 512 * col, 512 * row, 512, 512);
-  
-        setTimeout(() => {
-          const base64 = document.querySelector('#canvas').toDataURL('image/jpg');
-          $('#export').attr('src', base64).show();
-          $('#fetch-pool').addClass('done');
-          this.stepTo(2);
-        }, 20);
       })
+
+      $('#fetch-status').text('Drawing ..');
+
+      setTimeout(() => {
+        const base64 = document.querySelector('#canvas').toDataURL('image/jpg');
+        $('#export').attr('src', base64).show();
+        $('#fetch-pool').addClass('done');
+        
+        this.stepTo(2);
+
+        $('#fetch-status').text('Done');
+        setTimeout(() => {
+          $('#fetch-status').removeClass('show');
+          $('#fetch-close').addClass('show');
+        }, 2000);
+
+
+      }, 20);
     },  // drawCanvas
 
     loading() {
@@ -555,6 +651,21 @@ body {
 
     loaded() {
       $('#loading').fadeOut();
+    },
+    
+    reset() {
+      $('#fetch-pool').fadeOut().removeClass('done');
+      $('#fetch-pool .unit').remove();
+      $('#choose-view').removeClass('blur');
+      $('#pano-id').val('');
+      $('#pano-posi').val('');
+      this.pano_id = '';
+      this.pano_id_user = '';
+      $('#btn-fetch').addClass('disabled');
+      $('#fetch-status').text('Fetching').removeClass('show');
+      $('#fetch-close').removeClass('show');
+      $('#export').hide();
+      this.stepTo(0);
     },
 
   };
