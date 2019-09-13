@@ -4,7 +4,7 @@
     <title>Map Brain - mbn.im</title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
     <meta name="viewport" content="width=1440, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <!-- <link href="" rel="shortcut icon" /> -->
+    <link href="./images/favicon.ico" rel="shortcut icon" />
 <style>
 
 * {
@@ -34,6 +34,40 @@ body {
 .blur {
   filter: blur(4px);
   opacity: .4;
+}
+
+.left {
+  float: left;
+}
+
+.right {
+  float: right;
+}
+
+.logo {
+  min-width: 95px;
+  height: 60px;
+}
+
+.navi {
+  margin-left: 40px;
+  font-weight: 300;
+  font-size: 16px;
+}
+
+.github a,
+.navi a {
+  margin-left: 24px;
+  cursor: pointer;
+  color: rgba(255,255,255, .7);
+}
+
+.github a {
+  font-size: 14px;
+}
+
+.navi a:hover {
+  color: #fff;
 }
 
 .module {
@@ -176,12 +210,17 @@ body {
   height: 100px;
   line-height: 100px;
   font-weight: 300;
+  padding-bottom: 40px;
 }
 
 .footer p {
   color: #fff;
   font-size: 14px;
   text-align: center;
+}
+
+.footer p a {
+  color: #fff;
 }
 
 .choose-view-container {
@@ -400,9 +439,17 @@ body {
 
   <div class="header">
     <div class="center">
-      <span>MapBrain</span>
-      <a>Fetcher</a>
-      <a>Viewer</a>
+      <div class="left">
+        <img class="logo" src="./images/logo.png">
+      </div>
+      <div class="left navi">
+        <a>Fetcher</a>
+        <a>Viewer</a>
+      </div>
+      <div class="right github">
+        <a href="#">Video</a>
+        <a href="https://github.com/Chisw/MapBrain" target="_blank">GitHub</a>
+      </div>
     </div>
   </div>
 
@@ -450,7 +497,7 @@ body {
             <tr><td>17</td><td>18</td><td>19</td><td>20</td><td>21</td><td>22</td><td>23</td><td>24</td></tr>
             <tr><td>25</td><td>16</td><td>27</td><td>28</td><td>29</td><td>30</td><td>31</td><td>32</td></tr>
           </table>
-          <img id="export" src="" >
+          <img id="export" alt="export" src="" >
         </div>
 
       </div>
@@ -470,10 +517,9 @@ body {
     </div>
   </div>
 
-
   <div class="footer">
     <div class="center">
-      <p>Email: i@jisuowei.com</p>
+      <p>(づ′▽`)づ&emsp;Any suggestions or bugs send email to <a href="mailto:i@jisuowei.com">i@jisuowei.com</a></p>
     </div>
   </div>
 
@@ -492,31 +538,44 @@ body {
       this.initEvent();
     },
 
+    map: null,
     units: [],
     pano_id: '',
     pano_id_user: '',
     PANO_ID_RE: /^[0-9]{26}[A-Z]{1}$/,
 
     initMap() {
-      var map = new BMap.Map('map', {enableMapClick: false});
+      const map = new BMap.Map('map', {enableMapClick: false});
       map.centerAndZoom(new BMap.Point(120.616675, 31.338262), 14);
       map.enableScrollWheelZoom(true);
       
       map.addTileLayer(new BMap.PanoramaCoverageLayer());  // 覆盖区域图层测试
 
-      // var stCtrl = new BMap.PanoramaControl(); //构造全景控件
+      // const stCtrl = new BMap.PanoramaControl(); //构造全景控件
       // stCtrl.setOffset(new BMap.Size(20, 20));
       // map.addControl(stCtrl);//添加全景控件
+
+      const navigationControl = new BMap.NavigationControl({
+        anchor: BMAP_ANCHOR_TOP_LEFT,
+        type: BMAP_NAVIGATION_CONTROL_LARGE,
+      });
+
+      map.addControl(navigationControl);
 
       map.addEventListener('click', (event) => {
         $('#pano-id-user').val('').trigger('input').blur();
         this.pano_id_user = '';
         this.getPanoID(event.point);
       })
+      this.map = map;
     },  // initMap
 
     initEvent() {
       $('body')
+        .on('click', '.navi a', function() {
+          const index = $(this).index();
+          $('html, body').animate({scrollTop: [40, 1100][index] }, 230);
+        })
         .on('click', '#btn-fetch', () => {
           if ( !$('#btn-fetch').hasClass('disabled') ) {
             this.fetch();
@@ -575,17 +634,23 @@ body {
 
       const { lng, lat } = point;
 
-      var panoramaService = new BMap.PanoramaService();
+      const panoramaService = new BMap.PanoramaService();
       panoramaService.getPanoramaByLocation(new BMap.Point(lng, lat), (data) => {
-        var panoramaInfo="";
+        this.map.clearOverlays();
         if (data !== null) {
           $('#pano-id').val(data.id);
           $('#pano-posi').val(data.position.lng + ', ' + data.position.lat);
           this.setThumbnail(data.id);
           this.pano_id = data.id;
+
+          const point = new BMap.Point(data.position.lng, data.position.lat);
+          this.map.panTo(point);
+          const marker = new BMap.Marker(point);  // 创建标注
+          this.map.addOverlay(marker);               // 将标注添加到地图中
+          marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
         } else {
-          $('#pano-id').val('NO_MATCHED_POINT NO_MATCHED_POINT NO_MATCHED_POINT');
-          $('#pano-posi').val('TRY_AGAIN TRY_AGAIN TRY_AGAIN TRY_AGAIN TRY_AGAIN');
+          $('#pano-id').val('NO_MATCHED_POINT');
+          $('#pano-posi').val('TRY_AGAIN');
           this.setThumbnail();
           this.pano_id = '';
         }
@@ -692,6 +757,7 @@ body {
       $('#fetch-status').text('Fetching').removeClass('show');
       $('#fetch-close').removeClass('show');
       $('#export').hide();
+      this.setThumbnail();
       this.stepTo(0);
     },
 
