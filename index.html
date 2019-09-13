@@ -3,7 +3,6 @@
 <head>
     <title>Map Brain - mbn.im</title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
-    <meta http-equiv="Access-Control-Allow-Origin" content="*">
     <meta name="viewport" content="width=1440, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <!-- <link href="" rel="shortcut icon" /> -->
 <style>
@@ -24,7 +23,7 @@ html, body {
 }
 
 body {
-  padding-top: 80px;
+  padding-top: 60px;
 }
 
 .center {
@@ -32,9 +31,14 @@ body {
   width: 1200px;
 }
 
+.blur {
+  filter: blur(4px);
+  opacity: .4;
+}
+
 .module {
   width: 100%;
-  padding: 80px 0;
+  padding: 60px 0;
 }
 .module.fetcher { background-color: #3ddc84; }
 .module.viewer { background-color: #4285f4; }
@@ -56,11 +60,11 @@ body {
 
 .header {
   position: fixed;
-  z-index: 9;
+  z-index: 99;
   top: 0;
   width: 100%;
-  height: 80px;
-  line-height: 80px;
+  height: 60px;
+  line-height: 60px;
   color: #fff;
   background: #073042;
 }
@@ -89,6 +93,61 @@ body {
   background: #fff;
 }
 
+.input {
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  margin: 4px 0 0 0;
+  width: 100%;
+  padding: 6px 12px;
+  height: 38px;
+  line-height: 38px;
+  border-radius: 4px;
+  font-family: monospace, Consolas;
+}
+
+.input[readonly] {
+  color: #aaa;
+  border-color: #eee;
+}
+
+.input.active {
+  border-color: #3ddc84;
+}
+
+.input.error {
+  border-color: #f86734;
+}
+
+.btn {
+  display: block;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-image: -webkit-linear-gradient(45deg, #3ddc84,#4285f4);
+  text-align: center;
+  color: #fff;
+  height: 48px;
+  line-height: 48px;
+  font-size: 18px;
+  text-decoration: none;
+  font-weight: 300;
+  border-radius: 4px;
+  user-select: none;
+}
+.btn.disabled {
+  filter: grayscale(90%);
+}
+
+.btn:hover {
+  cursor: pointer;
+  opacity: .9;
+}
+
+.btn.disabled:hover {
+  cursor: not-allowed;
+  opacity: 1;
+}
+
 .wave {
   font-size: 0;
   height: 200px;
@@ -103,50 +162,141 @@ body {
   height: 100px;
 }
 
+.choose-view-container {
+  position: relative;
+}
 
 .choose-view {
   border: 4px solid #fff;
+  height: 560px;
   box-sizing: border-box;
   box-sizing: #348a5b;
   background: #fff;
   box-shadow: 0 10px 30px rgba(10,30,60, .3);
+  transition: all .5s;
+  border-radius: 2px;
 }
 
 .choose-view .map {
-  width: 100%;
-  height: 400px;
+  float: left;
+  width: 788px;
+  height: 552px;
+  border-radius: 4px;
 }
 
 .choose-view .view-console {
-  margin-top: 4px;
-  display: flex;
+  float: right;
+  position: relative;
+  width: 400px;
+  height: 100%;
 }
 
-.choose-view .view-console .console-left {
+.choose-view .view-console .console-top {
+  position: relative;
+  width: 400px;
+  height: 200px;
   font-size: 0;
+  border-radius: 4px;
+  background: #efefef;
+  overflow: hidden;
+}
+
+.choose-view .view-console .console-top::before,
+.choose-view .view-console .console-top::after {
+  content: '👈 Choose view by';
+  display: inline-block;
+  position: absolute;
+  z-index: 9;
+  top: 120px;
+  right: 20px;
+  left: 20px;
+  font-size: 18px;
+  text-align: center;
+  color: #aaa;
+  font-weight: 300;
+}
+.choose-view .view-console .console-top::before {
+  top: 150px;
+  content: 'clicking blue line on the left map';
 }
 
 .choose-view .view-console #view-thumbnail {
+  display: none;
+  position: absolute;
+  z-index: 10;
   width: 400px;
   height: 200px;
+  border-radius: 4px;
 }
 
+#loading {
+  display: none;
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  text-align: center;
+  line-height: 552px;
+  font-size: 60px;
+  background: rgba(61,220,132, .5);
+  user-select: none;
+}
 
-
-#pool {
+#fetch-pool {
+  display: none;
+  position: absolute;
+  z-index: 9;
+  top: 20px;
+  left: 88px;
+  width: 1024px;
+  height: 512px;
+  background: #fff;
+  box-shadow: 0 10px 50px rgba(0,0,0, .2);
+  outline: 3px solid #fff;
   font-size: 0;
+  user-select: none;
+}
+
+#fetch-pool::before {
+  content: '';
+  display: block;
+  position: absolute;
+  z-index: 10;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(255,255,255, .3);
+}
+
+#fetch-pool::after {
+  content: '';
+  display: block;
+  position: absolute;
+  z-index: 8;
+  top: -20px;
+  right: -88px;
+  bottom: -20px;
+  left: -88px;
+  /* background: rgba(0,0,0, .2); */
+}
+
+#fetch-pool.done::before {
+  display: none;
+}
+
+#export {
+  position: absolute;
+  z-index: 9;
+  display: none;
+  width: 100%;
+  height: 100%;
 }
 
 #canvas {
   display: none;
-}
-
-
-.temp {
-  width: 100%;
-  height: 600px;
-  background: #fff;
-  overflow: hidden;
 }
 
 
@@ -166,37 +316,42 @@ body {
     <div class="center">
 
       <h3 class="title">Fetcher</h3>
-      <h4 class="subtitle">3 steps get your favarite panoramic image</h4>
+      <h4 class="subtitle">3 steps get your panoramic image</h4>
 
       <div class="steper">
         <span class="item active">1. Choose view</span>
         <span>▶</span>
-        <span class="item">2. Wait fetching</span>
+        <span class="item">2. Fetch data</span>
         <span>▶</span>
         <span class="item">3. Save image</span>
       </div>
 
-      <div class="choose-view">
-          
+      <div class="choose-view-container">
+
+        <div class="choose-view" id="choose-view">
+
           <div class="map" id="map"></div>
 
           <div class="view-console">
-            <div class="console-left">
+            <div class="console-top">
               <img id="view-thumbnail" src="" />
             </div>
-            <div class="console-right">
-                <input id="pano-id" >
-                <input id="pano-lng" >
-                <input id="pano-lat" >
-                <button id="btn-fetch">Fetch</button>
-                <button id="btn-export">Export</button>
+            <div class="console-bottom">
+                <input id="pano-id" class="input" placeholder="Map pano_id" readonly>
+                <input id="pano-posi" class="input" placeholder="Map longitude, latitude" readonly>
+                <input id="pano-id-user" class="input" placeholder="Paste pano_id here if you have" maxlength="27" style="margin-top: 12px;">
+                <span id="btn-fetch" class="btn disabled">Fetch</span>
             </div>
-          </div>
+          </div><!-- .view-console -->
+        </div><!-- .choose-view -->
+
+        <div id="loading">🕒</div>
+
+        <div id="fetch-pool">
+          <img id="export" src="" >
+        </div>
+
       </div>
-  
-      <div id="pool" class="temp"></div>
-    
-      <img id="export" class="temp" src="" >
         
     </div>
   </div>
@@ -206,7 +361,7 @@ body {
   <div class="module viewer">
       <div class="center">
           <h3 class="title">Viewer</h3>
-          <h4 class="subtitle">View your panoramic image online, or download Viewer.zip for offline using</h4>
+          <h4 class="subtitle">View your panoramic image online or download Viewer.zip for offline using</h4>
       </div>
   </div>
 
@@ -232,9 +387,14 @@ body {
       this.initEvent();
     },
 
+    units: [],
+    pano_id: '',
+    pano_id_user: '',
+    PANO_ID_RE: /^[0-9]{26}[A-Z]{1}$/,
+
     initMap() {
       var map = new BMap.Map('map');
-      map.centerAndZoom(new BMap.Point(120.616675, 31.338262), 12);
+      map.centerAndZoom(new BMap.Point(120.616675, 31.338262), 14);
       map.enableScrollWheelZoom(true);
       
       map.addTileLayer(new BMap.PanoramaCoverageLayer());  // 覆盖区域图层测试
@@ -244,6 +404,8 @@ body {
       // map.addControl(stCtrl);//添加全景控件
 
       map.addEventListener('click', (event) => {
+        $('#pano-id-user').val('').trigger('input').blur();
+        this.pano_id_user = '';
         this.getPanoID(event.point);
       })
     },  // initMap
@@ -251,90 +413,149 @@ body {
     initEvent() {
       $('body')
         .on('click', '#btn-fetch', () => {
-          this.fetch();
+          if ( !$('#btn-fetch').hasClass('disabled') ) {
+            this.fetch();
+          }
         })
-        .on('click', '#btn-export', () => {
-          this.export();
+        .on('input properychange', '#pano-id-user', () => {
+          const $u = $('#pano-id-user');
+          const id = $u.val();
+
+          if ( id === '') {
+            $u.removeClass('error active');
+            this.pano_id_user = '';
+          } else if ( this.PANO_ID_RE.test(id) ) {
+            $u.removeClass('error').addClass('active');
+            this.pano_id_user = id;
+            this.setThumbnail(id);
+
+            $('#pano-id, #pano-posi').val('');
+            this.pano_id = '';
+          } else {
+            $u.removeClass('active').addClass('error');
+            this.pano_id_user = '';
+          }
+
+          this.switchBtn();
         })
     },  // initEvent
 
+    stepTo(index) {
+      $(`.steper .item:nth(${index})`).addClass('active').siblings().removeClass('active');
+    },  // stepTo
+
+    setThumbnail(id) {
+      if ( id ) {
+        this.loading();
+        $('#view-thumbnail').attr('src', `https://mapsv1.bdimg.com/?qt=pdata&sid=${id}&pos=0_0&z=1`).show();
+        this.loaded();
+      } else {
+        $('#view-thumbnail').attr('src', ``).hide();
+      }
+    },
+
+    switchBtn() {
+      if ( this.pano_id || this.pano_id_user ) {
+        $('#btn-fetch').removeClass('disabled');
+      } else {
+        $('#btn-fetch').addClass('disabled');
+      }
+    },
+
     getPanoID(point) {
+      this.loading();
+
       const { lng, lat } = point;
 
       var panoramaService = new BMap.PanoramaService();
-      panoramaService.getPanoramaByLocation(new BMap.Point(lng, lat), function(data){
+      panoramaService.getPanoramaByLocation(new BMap.Point(lng, lat), (data) => {
         var panoramaInfo="";
         if (data !== null) {
           $('#pano-id').val(data.id);
-          $('#pano-lng').val(data.position.lng);
-          $('#pano-lat').val(data.position.lat);
-          $('#view-thumbnail').attr('src', `https://mapsv1.bdimg.com/?qt=pdata&sid=${data.id}&pos=0_0&z=1`);
+          $('#pano-posi').val(data.position.lng + ', ' + data.position.lat);
+          this.setThumbnail(data.id);
+          this.pano_id = data.id;
         } else {
-
+          $('#pano-id').val('NO_MATCHED_POINT');
+          $('#pano-posi').val('TRY_AGAIN');
+          this.setThumbnail();
+          this.pano_id = '';
         }
+        this.loaded();
+        this.switchBtn();
       });
     },  // getPanoID
 
     fetch() {
-      let units = [];
+      $('#choose-view').addClass('blur');
+      this.stepTo(1);
 
-      for ( let row = 0, rows = 4; row < rows; row++ ) {
-        for ( let col = 0, cols = 8; col < cols; col ++ ) {
-          units.push({
-            row,
-            col,
-            src: `https://mapsv1.bdimg.com/?qt=pdata&sid=${$('#pano-id').val()}&pos=${row}_${col}&z=4`
-          });
+      setTimeout(() => {
+        $('#fetch-pool').fadeIn();
+
+        let units = [];
+
+        for ( let row = 0, rows = 4; row < rows; row++ ) {
+          for ( let col = 0, cols = 8; col < cols; col ++ ) {
+            units.push({
+              row,
+              col,
+              src: `https://mapsv1.bdimg.com/?qt=pdata&sid=${$('#pano-id').val()}&pos=${row}_${col}&z=4`
+            });
+          }
         }
-      }
 
-      this.units = units;
-      this._appendImg()
+        this.units = units;
+        this._appendImg()
+      }, 501)
     },  // fetch
 
     _appendImg() {
       setTimeout( () => {
-            const first = this.units.shift()
-            if ( first ) {
-              $('#pool').append(
-                `<img 
-                  crossOrigin="Anonymous" 
-                  width="128" 
-                  row="${first.row}" 
-                  col="${first.col}" 
-                  onload="MapBrain._appendImg()" 
-                  src="${first.src}" 
-                />`
-              )
-            } else {
-              this.drawCanvas()
-            }
-        }, 10)
+        const first = this.units.shift()
+        if ( first ) {
+          $('#fetch-pool').append(
+            `<img 
+              class="unit"
+              crossOrigin="Anonymous" 
+              width="128" 
+              row="${first.row}" 
+              col="${first.col}" 
+              onload="MapBrain._appendImg()" 
+              src="${first.src}" 
+            />`
+          )
+        } else {
+          this.drawCanvas();
+        }
+      }, 10)
     },  // _appendImg
 
     drawCanvas() {
-      const ctx = document.querySelector('#canvas').getContext('2d')
-      const images = document.querySelectorAll('#pool img');
+      const ctx = document.querySelector('#canvas').getContext('2d');
+      const images = document.querySelectorAll('#fetch-pool .unit');
 
       images.forEach( img => {
-        const row = img.getAttribute('row')
-        const col = img.getAttribute('col')
-        ctx.drawImage(img, 512 * col, 512 * row, 512, 512)
+        const row = img.getAttribute('row');
+        const col = img.getAttribute('col');
+        ctx.drawImage(img, 512 * col, 512 * row, 512, 512);
+  
+        setTimeout(() => {
+          const base64 = document.querySelector('#canvas').toDataURL('image/jpg');
+          $('#export').attr('src', base64).show();
+          $('#fetch-pool').addClass('done');
+          this.stepTo(2);
+        }, 20);
       })
     },  // drawCanvas
 
-    export() {
-      const base64 = document.querySelector('#canvas').toDataURL('image/jpg');
-      $('#export').attr('src', base64)
-      // this.grab()
-    },  // export
+    loading() {
+      $('#loading').fadeIn();
+    },
 
-    grab(base64, name = 'export.jpg') {
-      const link = document.createElement('a')
-      link.setAttribute('href', base64)
-      link.setAttribute('download', name)
-      link.dispatchEvent(new MouseEvent(`click`, { bubbles: true, cancelable: true, view: window }))
-    },  // grab
+    loaded() {
+      $('#loading').fadeOut();
+    },
 
   };
 
