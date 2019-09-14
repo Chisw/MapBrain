@@ -177,7 +177,7 @@ body {
 }
 
 .radio-group .group-item {
-  width: 50%;
+  width: 100%;
   text-align: center;
   color: #3ddc84;
   font-size: 14px;
@@ -212,7 +212,7 @@ body {
 
 @keyframes wave {
   from {
-    background: #4285f4;
+    background: #1a7643;
   }
   to {
     background: #3ddc84;
@@ -384,13 +384,13 @@ body {
   display: none;
 }
 
-#fetch-close,
+#fetch-end,
 #fetch-status {
   position: absolute;
   z-index: -2;
   top: 0;
   left: -4px;
-  width: 100px;
+  padding: 0 12px;
   height: 28px;
   line-height: 28px;
   background: #fff;
@@ -402,18 +402,22 @@ body {
   transition: all .23s;
 }
 
-#fetch-close {
+#fetch-end {
   left: auto;
   right: -4px;
   cursor: pointer;
   color: #4285f4;
 }
 
-#fetch-close:hover {
+#fetch-end span + span {
+  margin-left: 12px;
+}
+
+#fetch-end span:hover {
   color: #348a5b;
 }
 
-#fetch-close.show,
+#fetch-end.show,
 #fetch-status.show {
   top: -28px;
   z-index: 10;
@@ -528,7 +532,7 @@ body {
         <span>▶</span>
         <span class="item">2. Fetch data</span>
         <span>▶</span>
-        <span class="item">3. Save image</span>
+        <span class="item">3. Download</span>
       </div>
 
       <div class="choose-view-container">
@@ -542,16 +546,17 @@ body {
               <img id="view-thumbnail" src="" />
             </div>
             <div class="console-bottom">
-                <label class="input-label">Pano id</label>
-                <input id="pano-id" class="input" readonly>
-                <label class="input-label">Pano position</label>
-                <input id="pano-posi" class="input" readonly>
+                <label class="input-label">Pano id and position</label>
+                <input id="pano-id-and-posi" class="input" readonly>
+                <label class="input-label">Image Name</label>
+                <input id="image-name" class="input" readonly>
                 <label class="input-label">Customize pano id</label>
                 <input id="pano-id-user" class="input" placeholder="Paste pano_id here if you have" maxlength="27">
-                <label class="input-label">Image type</label>
-                <div class="radio-group">
-                  <span data-type="jpeg" class="group-item active">.jpeg</span>
-                  <span data-type="png" class="group-item">.png</span>
+                <label class="input-label">Image Quality</label>
+                <div class="radio-group" id="image-quality">
+                  <span data-quality=".92" class="group-item active">High</span>
+                  <span data-quality=".8" class="group-item">Middle</span>
+                  <span data-quality=".5" class="group-item">Low</span>
                 </div>
                 <span id="btn-fetch" class="btn disabled">Fetch</span>
             </div>
@@ -561,8 +566,8 @@ body {
         <div id="loading">🕒</div>
 
         <div id="fetch-pool">
-          <div id="fetch-status">Fetching ..</div>
-          <div id="fetch-close">Close</div>
+          <div id="fetch-status">🧲 Fetching ..</div>
+          <div id="fetch-end"><span id="download">💾 Download</span> <span id="close">❌ Close</span></div>
           <table id="export-bg">
             <tr><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td><td>6</td><td>7</td><td>8</td></tr>
             <tr><td>9</td><td>10</td><td>11</td><td>12</td><td>13</td><td>14</td><td>15</td><td>16</td></tr>
@@ -573,7 +578,7 @@ body {
         </div>
 
       </div>
-      <h4 class="subtitle -bottom">The size of the generated image may be over 5M, <br>which is why we use manual 'Save' instead of automatic 'Export'.</h4>
+      <h4 class="subtitle -bottom">^_^</h4>
     </div>
   </div>
 
@@ -613,6 +618,7 @@ body {
 
     map: null,
     units: [],
+    base64: '',
     pano_id: '',
     pano_id_user: '',
     PANO_ID_RE: /^[0-9]{26}[A-Z]{1}$/,
@@ -669,7 +675,7 @@ body {
             this.pano_id_user = id;
             this.setThumbnail(id);
 
-            $('#pano-id, #pano-posi').val('');
+            $('#pano-id-and-posi').val('');
             this.pano_id = '';
           } else {
             $u.removeClass('active').addClass('error');
@@ -678,8 +684,11 @@ body {
 
           this.switchBtn();
         })
-        .on('click', '#fetch-close', () => {
+        .on('click', '#close', () => {
           this.reset();
+        })
+        .on('click', '#download', () => {
+          this.grab(this.base64);
         })
     },  // initEvent
 
@@ -694,6 +703,18 @@ body {
         this.loaded();
       } else {
         $('#view-thumbnail').attr('src', ``).hide();
+      }
+    },  // setThumbnail
+
+    imageName: {
+      set() {
+        $('#image-name').val('IMG_MapBrain_' + new Date().getTime() + '.jpg');
+      },
+      del() {
+        $('#image-name').val('');
+      },
+      get() {
+        return $('#image-name').val();
       }
     },
 
@@ -714,8 +735,7 @@ body {
       panoramaService.getPanoramaByLocation(new BMap.Point(lng, lat), (data) => {
         this.map.clearOverlays();
         if (data !== null) {
-          $('#pano-id').val(data.id);
-          $('#pano-posi').val(data.position.lng + ',' + data.position.lat);
+          $('#pano-id-and-posi').val(data.id + ' & ' + data.position.lng + ',' + data.position.lat );
           this.setThumbnail(data.id);
           this.pano_id = data.id;
 
@@ -723,12 +743,15 @@ body {
           this.map.panTo(point);
           const marker = new BMap.Marker(point);  // 创建标注
           this.map.addOverlay(marker);               // 将标注添加到地图中
-          marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+          // marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+
+          this.imageName.set();
         } else {
-          $('#pano-id').val('NO_MATCHED_POINT');
-          $('#pano-posi').val('TRY_AGAIN');
+          $('#pano-id-and-posi').val('NO_MATCHED_POINT_TRY_AGAIN');
           this.setThumbnail();
           this.pano_id = '';
+
+          this.imageName.del();
         }
         this.loaded();
         this.switchBtn();
@@ -781,7 +804,7 @@ body {
         } else {
           this.drawCanvas();
         }
-      }, 10)
+      }, 12)
     },  // _appendImg
 
     drawCanvas() {
@@ -794,21 +817,23 @@ body {
         ctx.drawImage(img, 512 * col, 512 * row, 512, 512);
       })
 
-      $('#fetch-status').text('Drawing ..');
+      $('#fetch-status').text('🖌 Drawing ..');
 
       setTimeout(() => {
-        const base64 = document.querySelector('#canvas').toDataURL(`image/${$('.group-item.active').data('type')}`);
-        $('#export').attr('src', base64).show();
+        this.base64 = document.querySelector('#canvas').toDataURL(
+          `image/jpeg`, 
+          +$('#image-quality .active').data('quality')
+        );
+        $('#export').attr('src', this.base64).show();
         $('#fetch-pool').addClass('done');
         
         this.stepTo(2);
 
-        $('#fetch-status').text('Done');
+        $('#fetch-status').text('💡 Done');
+        $('#fetch-end').addClass('show');
         setTimeout(() => {
           $('#fetch-status').removeClass('show');
-          $('#fetch-close').addClass('show');
         }, 2000);
-
 
       }, 20);
     },  // drawCanvas
@@ -825,16 +850,25 @@ body {
       $('#fetch-pool').fadeOut().removeClass('done');
       $('#fetch-pool .unit').remove();
       $('#choose-view').removeClass('blur');
-      $('#pano-id').val('');
-      $('#pano-posi').val('');
+      $('#pano-id-and-posi').val('');
       this.pano_id = '';
       this.pano_id_user = '';
       $('#btn-fetch').addClass('disabled');
-      $('#fetch-status').text('Fetching').removeClass('show');
-      $('#fetch-close').removeClass('show');
+      $('#fetch-status').text('🧲 Fetching ..').removeClass('show');
+      $('#fetch-end').removeClass('show');
       $('#export').hide();
+      this.imageName.del();
       this.setThumbnail();
+      this.map.clearOverlays();
       this.stepTo(0);
+    },
+
+    grab (base64) {
+      const name = this.imageName.get();
+      const link = document.createElement('a');
+      link.setAttribute('href', base64);
+      link.setAttribute('download', name);
+      link.dispatchEvent(new MouseEvent(`click`, { bubbles: true, cancelable: true, view: window }));
     },
 
   };
