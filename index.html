@@ -45,7 +45,7 @@ body {
 }
 
 .logo {
-  min-width: 95px;
+  width: 72px;
   height: 60px;
 }
 
@@ -73,6 +73,8 @@ body {
 .module {
   width: 100%;
   padding: 60px 0 120px 0;
+  background: url(./images/line_bg.png) no-repeat center;
+  background-size: 1920px;
 }
 .module.fetcher { background-color: #3ddc84; }
 .module.viewer { background-color: #4285f4; }
@@ -131,15 +133,20 @@ body {
   background: #fff;
 }
 
+.input-label {
+  display: inline-block;
+  margin: 8px 0 4px 4px;
+  font-size: 12px;
+  color: #999;
+}
+
 .input {
   box-sizing: border-box;
-  border: 2px solid #ccc;
-  margin: 4px 0 0 0;
+  border: 1px solid #ddd;
   width: 100%;
   padding: 6px 12px;
   height: 38px;
   line-height: 38px;
-  text-align: center;
   border-radius: 4px;
   font-family: monospace, consolas;
 }
@@ -147,6 +154,7 @@ body {
 .input[readonly] {
   color: #aaa;
   border-color: #eee;
+  background: #fafafa;
 }
 
 .input.active {
@@ -155,6 +163,30 @@ body {
 
 .input.error {
   border-color: #f86734;
+}
+
+.radio-group {
+  display: flex;
+  box-sizing: border-box;
+  border: 1px solid #3ddc84;
+  width: 100%;
+  height: 38px;
+  line-height: 36px;
+  border-radius: 4px;
+  font-family: monospace, consolas;
+}
+
+.radio-group .group-item {
+  width: 50%;
+  text-align: center;
+  color: #3ddc84;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.radio-group .group-item.active {
+  color: #fff;
+  background: #3ddc84;
 }
 
 .btn {
@@ -262,7 +294,7 @@ body {
   height: 200px;
   font-size: 0;
   border-radius: 4px;
-  background: #efefef;
+  background: url(./images/thumbnail.png) no-repeat center;;
   overflow: hidden;
 }
 
@@ -272,17 +304,17 @@ body {
   display: inline-block;
   position: absolute;
   z-index: 9;
-  top: 120px;
+  top: 80px;
   right: 20px;
   left: 20px;
   font-size: 18px;
   text-align: center;
-  color: #aaa;
+  color: #666;
   font-weight: 300;
 }
 .choose-view .view-console .console-top::before {
-  top: 150px;
-  content: 'clicking blue line on the left map';
+  top: 120px;
+  content: 'clicking blue line on the map left';
 }
 
 .choose-view .view-console #view-thumbnail {
@@ -399,7 +431,8 @@ body {
 
 #export-bg td {
   border: 1px solid #efefef;
-  text-align: center;
+  text-align: right;
+  vertical-align: bottom;
   width: 12.5%;
   font-family: monospace, consolas;
   background: #fff;
@@ -509,9 +542,17 @@ body {
               <img id="view-thumbnail" src="" />
             </div>
             <div class="console-bottom">
+                <label class="input-label">Pano id</label>
                 <input id="pano-id" class="input" readonly>
+                <label class="input-label">Pano position</label>
                 <input id="pano-posi" class="input" readonly>
-                <input id="pano-id-user" class="input" placeholder="Paste pano_id here if you have" maxlength="27" style="margin-top: 12px;">
+                <label class="input-label">Customize pano id</label>
+                <input id="pano-id-user" class="input" placeholder="Paste pano_id here if you have" maxlength="27">
+                <label class="input-label">Image type</label>
+                <div class="radio-group">
+                  <span data-type="jpeg" class="group-item active">.jpeg</span>
+                  <span data-type="png" class="group-item">.png</span>
+                </div>
                 <span id="btn-fetch" class="btn disabled">Fetch</span>
             </div>
           </div><!-- .view-console -->
@@ -532,7 +573,7 @@ body {
         </div>
 
       </div>
-      <h4 class="subtitle -bottom">The size of generated image may be over 5M, <br>which is why use manual 'Save' instead of automatic 'Export'.</h4>
+      <h4 class="subtitle -bottom">The size of the generated image may be over 5M, <br>which is why we use manual 'Save' instead of automatic 'Export'.</h4>
     </div>
   </div>
 
@@ -608,6 +649,9 @@ body {
           const index = $(this).index();
           $('html, body').animate({scrollTop: [20, 1220][index] }, 230);
         })
+        .on('click', '.radio-group .group-item', function() {
+          $(this).addClass('active').siblings().removeClass('active');
+        })
         .on('click', '#btn-fetch', () => {
           if ( !$('#btn-fetch').hasClass('disabled') ) {
             this.fetch();
@@ -671,7 +715,7 @@ body {
         this.map.clearOverlays();
         if (data !== null) {
           $('#pano-id').val(data.id);
-          $('#pano-posi').val(data.position.lng + ', ' + data.position.lat);
+          $('#pano-posi').val(data.position.lng + ',' + data.position.lat);
           this.setThumbnail(data.id);
           this.pano_id = data.id;
 
@@ -753,7 +797,7 @@ body {
       $('#fetch-status').text('Drawing ..');
 
       setTimeout(() => {
-        const base64 = document.querySelector('#canvas').toDataURL('image/jpg');
+        const base64 = document.querySelector('#canvas').toDataURL(`image/${$('.group-item.active').data('type')}`);
         $('#export').attr('src', base64).show();
         $('#fetch-pool').addClass('done');
         
