@@ -14,6 +14,10 @@
   border: none;
 }
 
+::placeholder {
+  color: #ccc;
+}
+
 html, body {
   width: 100%;
   height: 100%;
@@ -195,7 +199,7 @@ body {
   position: absolute;
   bottom: 0;
   width: 100%;
-  background-image: -webkit-linear-gradient(0deg, #3ddc84,#4285f4);
+  background: #3ddc84;
   text-align: center;
   color: #fff;
   height: 48px;
@@ -220,7 +224,7 @@ body {
   }
 }
 .btn.disabled {
-  filter: grayscale(90%);
+  background: #bbb;
 }
 
 .btn:hover {
@@ -774,8 +778,8 @@ body {
           const point = new BMap.Point(data.position.lng, data.position.lat);
           this.map.panTo(point);
           const marker = new BMap.Marker(point);  // 创建标注
-          this.map.addOverlay(marker);               // 将标注添加到地图中
-          // marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
+          this.map.addOverlay(marker);  // 将标注添加到地图中
+          // marker.setAnimation(BMAP_ANIMATION_BOUNCE);  //跳动的动画
 
           this.imageName.set();
           this.noMatch.hide();
