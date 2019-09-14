@@ -122,6 +122,7 @@ body {
   border-radius: 20px;
   padding: 2px 8px;
   font-size: 14px;
+  background: rgba(255,255,255, .2);
 }
 
 .steper span + span {
@@ -337,7 +338,7 @@ body {
   text-align: center;
   line-height: 552px;
   font-size: 60px;
-  background: rgba(61,220,132, .3);
+  background: rgba(61,220,132, .4);
   user-select: none;
 }
 
@@ -474,6 +475,25 @@ body {
   background: rgba(255,255,255, .1);
 }
 
+#no-match {
+  display: none;
+  position: absolute;
+  top: 4px;
+  left: 240px;
+  width: 320px;
+  height: 28px;
+  line-height: 28px;
+  background: #f86734;
+  color: #fff;
+  font-family: monospace, consolas;
+  text-align: center;
+  font-size: 12px;
+  border-bottom-left-radius: 4px;
+  border-bottom-right-radius: 4px;
+  box-shadow: 0 5px 5px rgba(139,69,19, .3), 0 2px 2px rgba(139,69,19, .2);
+  text-shadow: 0 2px 2px rgba(139,69,19, .2);
+}
+
 #mask {
   display: none;
   position: fixed;
@@ -561,6 +581,9 @@ body {
                 <span id="btn-fetch" class="btn disabled">Fetch</span>
             </div>
           </div><!-- .view-console -->
+
+          <div id="no-match">No point matched, try again..</div>
+
         </div><!-- .choose-view -->
 
         <div id="loading">🕒</div>
@@ -706,6 +729,15 @@ body {
       }
     },  // setThumbnail
 
+    noMatch: {
+      show() {
+        $('#no-match').hide().slideDown();
+      },
+      hide() {
+        $('#no-match').slideUp();
+      }
+    },
+
     imageName: {
       set() {
         $('#image-name').val('IMG_MapBrain_' + new Date().getTime() + '.jpg');
@@ -746,12 +778,14 @@ body {
           // marker.setAnimation(BMAP_ANIMATION_BOUNCE); //跳动的动画
 
           this.imageName.set();
+          this.noMatch.hide();
         } else {
-          $('#pano-id-and-posi').val('NO_MATCHED_POINT_TRY_AGAIN');
+          $('#pano-id-and-posi').val('');
           this.setThumbnail();
           this.pano_id = '';
 
           this.imageName.del();
+          this.noMatch.show();
         }
         this.loaded();
         this.switchBtn();
@@ -839,11 +873,11 @@ body {
     },  // drawCanvas
 
     loading() {
-      $('#loading').fadeIn();
+      $('#loading').fadeIn(100);
     },
 
     loaded() {
-      $('#loading').fadeOut();
+      $('#loading').fadeOut(100);
     },
     
     reset() {
