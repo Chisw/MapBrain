@@ -571,8 +571,8 @@ body {
               <img id="view-thumbnail" src="" />
             </div>
             <div class="console-bottom">
-                <label class="input-label">Pano id and position</label>
-                <input id="pano-id-and-posi" class="input" readonly>
+                <label class="input-label">Pano position</label>
+                <input id="pano-posi" class="input" readonly>
                 <label class="input-label">Image Name</label>
                 <input id="image-name" class="input" readonly>
                 <label class="input-label">Customize pano id</label>
@@ -702,12 +702,13 @@ body {
             $u.removeClass('error active');
             this.pano_id_user = '';
           } else if ( this.PANO_ID_RE.test(id) ) {
+            $('#pano-posi').val('');
+            this.pano_id = '';
+
             $u.removeClass('error').addClass('active');
             this.pano_id_user = id;
             this.setThumbnail(id);
-
-            $('#pano-id-and-posi').val('');
-            this.pano_id = '';
+            MapBrain.imageName.set();
           } else {
             $u.removeClass('active').addClass('error');
             this.pano_id_user = '';
@@ -748,7 +749,7 @@ body {
 
     imageName: {
       set() {
-        $('#image-name').val('IMG_MapBrain_' + new Date().getTime() + '.jpg');
+        $('#image-name').val('MapBrain_' + (MapBrain.pano_id || MapBrain.pano_id_user) + '.jpg');
       },
       del() {
         $('#image-name').val('');
@@ -775,7 +776,7 @@ body {
       panoramaService.getPanoramaByLocation(new BMap.Point(lng, lat), (data) => {
         this.map.clearOverlays();
         if (data !== null) {
-          $('#pano-id-and-posi').val(data.id + ' & ' + data.position.lng + ',' + data.position.lat );
+          $('#pano-posi').val(data.position.lng + ',' + data.position.lat );
           this.setThumbnail(data.id);
           this.pano_id = data.id;
 
@@ -788,7 +789,7 @@ body {
           this.imageName.set();
           this.noMatch.hide();
         } else {
-          $('#pano-id-and-posi').val('');
+          $('#pano-posi').val('');
           this.setThumbnail();
           this.pano_id = '';
 
@@ -892,13 +893,14 @@ body {
       $('#fetch-pool').fadeOut().removeClass('done');
       $('#fetch-pool .unit').remove();
       $('#choose-view').removeClass('blur');
-      $('#pano-id-and-posi').val('');
+      $('#pano-posi').val('');
       this.pano_id = '';
       this.pano_id_user = '';
       $('#btn-fetch').addClass('disabled');
       $('#fetch-status').text('🧲 Fetching ..').removeClass('show');
       $('#fetch-end').removeClass('show');
       $('#export').hide();
+      $('#pano-id-user').val('');
       this.imageName.del();
       this.setThumbnail();
       this.map.clearOverlays();
