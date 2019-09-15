@@ -97,9 +97,9 @@ body {
   color: rgba(255,255,255, .7);
 }
 
-.module .subtitle.-bottom {
-  margin: 40px 0 0 0;
-  font-size: 16px;
+.module .subtitle.-small {
+  margin: 40px 0 32px 0;
+  font-size: 14px;
 }
 
 .header {
@@ -463,6 +463,16 @@ body {
   display: none;
 }
 
+.get-batch {
+  padding: 80px 200px 0 200px;
+}
+
+.get-batch pre {
+  padding: 20px 40px;
+  color: #3ddc84;
+  background: #072e19;
+  border-radius: 4px;
+}
 
 .drop-view {
   border: 2px dashed #fff;
@@ -548,7 +558,7 @@ body {
   <div class="module fetcher">
     <div class="center">
 
-      <h3 class="title">Fetcher</h3>
+      <h3 class="title navi-target">Fetcher</h3>
       <h4 class="subtitle">3 steps get your panoramic image</h4>
 
       <div class="steper">
@@ -606,10 +616,49 @@ body {
         </div>
 
       </div>
-      <h4 class="subtitle -bottom">
+      <h4 class="subtitle -small">
         If an error occurs while downloading,<br>
         try right-clicking save or drag the image to the desktop directly.
       </h4>
+
+      <div class="get-batch">
+        <h3 class="title">
+          How to get pano_ids along the way？
+        </h3>
+        <h4 class="subtitle">
+          Copy the following code and paste it to the console of BaiduPano page,<br>
+          and then click the direction-guide-button to collect ids.
+        </h4>
+        <code>
+<pre>
+(function(){
+  let monitor = document.createElement('textarea');
+  document.body.appendChild(monitor);
+
+  monitor.onclick = (event) => {event.stopPropagation();}
+  monitor.id = 'mbn-monitor';
+  monitor.value = 'Ready, click the direction-guide-button now.';
+  monitor.style = 
+    `position: fixed;z-index: 999999;top: 80px;left: 20px;
+    width: 220px;height: 320px;padding: 20px;overflow-y: auto;
+    font-family: monospace, consolas;font-size: 12px;text-align: center;
+    color: #3ddc84; background: #072e19; border: 1px solid #3ddc84;border-radius: 4px;`;
+
+  let panoIdList = [];
+  window.onclick = () => {
+    const panoId = location.href.match(/[0-9]{26}[A-Z]{1}/)[0]
+    const exist = panoIdList.find((id) => {
+      return id === panoId;
+    })
+    if (!exist) panoIdList.unshift(panoId)
+
+    monitor.value = panoIdList.join(',\n') + ',';
+  }
+}());
+</pre>
+        </code>
+      </div>
+
     </div>
   </div>
 
@@ -617,7 +666,7 @@ body {
 
   <div class="module viewer">
     <div class="center">
-      <h3 class="title">Viewer</h3>
+      <h3 class="title navi-target">Viewer</h3>
       <h4 class="subtitle">View your panoramic image online or download Viewer.zip for offline using</h4>
 
       <div class="drop-view">
@@ -684,7 +733,10 @@ body {
       $('body')
         .on('click', '.navi a', function() {
           const index = $(this).index();
-          $('html, body').animate({scrollTop: [20, 1220][index] }, 230);
+          $('html, body').animate({
+              scrollTop: $($('.navi-target')[index]).offset().top - 100
+            }, 
+          230);
         })
         .on('click', '.radio-group .group-item', function() {
           $(this).addClass('active').siblings().removeClass('active');
