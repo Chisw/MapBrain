@@ -229,12 +229,11 @@ body {
 
 .btn:hover {
   cursor: pointer;
-  opacity: .9;
+  animation: none;
 }
 
 .btn.disabled:hover {
   cursor: not-allowed;
-  opacity: 1;
 }
 
 .wave {
@@ -586,7 +585,7 @@ body {
                 <label class="input-label">Image Name</label>
                 <input id="image-name" class="input" readonly>
                 <label class="input-label">Customize pano id</label>
-                <input id="pano-id-user" class="input" placeholder="Paste pano_id here if you have" maxlength="27">
+                <input id="pano-id-user" class="input" placeholder="Paste pano id here if you have" maxlength="27">
                 <label class="input-label">Image Quality</label>
                 <div class="radio-group" id="image-quality">
                   <span data-quality=".92" class="group-item active">High</span>
