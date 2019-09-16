@@ -622,7 +622,7 @@ body {
 
       <div class="get-batch">
         <h3 class="title">
-          How to get pano_ids along the way？
+          How to get pano ids along the way？
         </h3>
         <h4 class="subtitle">
           Copy the following code and paste it to the console of BaiduPano page,<br>
@@ -800,7 +800,7 @@ body {
 
     imageName: {
       set() {
-        $('#image-name').val('MapBrain_' + (MapBrain.pano_id || MapBrain.pano_id_user) + '.jpg');
+        $('#image-name').val('PANODA_' + (MapBrain.pano_id || MapBrain.pano_id_user) + '.jpg');
       },
       del() {
         $('#image-name').val('');
@@ -852,6 +852,15 @@ body {
       });
     },  // getPanoID
 
+    getPanoInfo(id) {
+      $.ajax({
+        url: `https://mapsv0.bdimg.com/?qt=sdata&sid=${id}`,
+        success: (data) => {
+          console.log(data);
+        }
+      }) 
+    },
+
     fetch() {
       $('#choose-view').addClass('blur');
       this.stepTo(1);
@@ -902,6 +911,8 @@ body {
     },  // _appendImg
 
     drawCanvas() {
+      $('#fetch-status').text('🖌 Drawing ..');
+
       const ctx = document.querySelector('#canvas').getContext('2d');
       const images = document.querySelectorAll('#fetch-pool .unit');
 
@@ -911,7 +922,12 @@ body {
         ctx.drawImage(img, 512 * col, 512 * row, 512, 512);
       })
 
-      $('#fetch-status').text('🖌 Drawing ..');
+      ctx.font = '24px monospace';
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#000';
+      ctx.fillText('panoda.jisuowei.com', 4072, 2021);
+      ctx.fillStyle = '#fff';
+      ctx.fillText('panoda.jisuowei.com', 4072, 2020);
 
       setTimeout(() => {
         this.base64 = document.querySelector('#canvas').toDataURL(
