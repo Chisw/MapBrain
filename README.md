@@ -1,4 +1,5 @@
 # MapBrain
 Baidu Panoramic View Capture
 
-Visit at http://mbn.im
+Visit at <s>http://mbn.im</s>
+http://mapbrain.jisuowei.com
