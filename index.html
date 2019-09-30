@@ -4,6 +4,7 @@
     <title>Map Brain - mbn.im</title>
     <meta http-equiv="content-type" content="text/html;charset=utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=1">
+    <script type="text/javascript" src="http://jisuowei.com/i/js/chrome.js"></script>
     <link href="./images/favicon.ico" rel="shortcut icon" />
 <style>
 
@@ -23,11 +24,10 @@ html, body {
   height: 100%;
   min-width: 1200px;
   min-height: 800px;
-  background: #073042;
 }
 
 body {
-  padding-top: 60px;
+  padding-top: 100px;
 }
 
 .center {
@@ -80,7 +80,6 @@ body {
   background-size: 1920px;
 }
 .module.fetcher { background-color: #3ddc84; }
-.module.viewer { background-color: #4285f4; }
 
 .module .title {
   text-align: center;
@@ -103,8 +102,7 @@ body {
 }
 
 .header {
-  position: fixed;
-  z-index: 99;
+  position: relative;
   top: 0;
   width: 100%;
   height: 60px;
@@ -236,21 +234,11 @@ body {
   cursor: not-allowed;
 }
 
-.wave {
-  font-size: 0;
-  height: 200px;
-  overflow: hidden;
-  background: url(./images/wave-blue.svg) no-repeat center top;
-  background-size: 2560px;
-  background-color: #3ddc84;
-}
-
 .footer {
   width: 100%;
-  height: 100px;
-  line-height: 100px;
+  line-height: 60px;
   font-weight: 300;
-  padding-bottom: 40px;
+  background: #073042;
 }
 
 .footer p {
@@ -507,35 +495,26 @@ body {
   text-shadow: 0 2px 2px rgba(139,69,19, .2);
 }
 
-#mask {
-  display: none;
+.panoda {
   position: fixed;
-  z-index: 100;
   top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  padding: 6rem 2rem;
-  background: #f86734;
-  opacity: .9;
-  color: #fff;
-  font-size: 3rem;
+  width: 100%;
+  background: rgba(255,255,255, .92);
   text-align: center;
-  line-height: 4rem;
+  line-height: 100px;
+  z-index: 999999999999999999999999999999999;
 }
 
-@media (max-width: 768px) {
-  #mask {
-    display: block;
-  }
+.panoda a {
+  color: #3ddc84;
 }
 
 </style>
 </head>
 <body>
 
-  <div id="mask">
-    请在PC端浏览器地址栏中输入 mbn.im 访问
+  <div class="panoda">
+    Upgrade to <a href="http://panoda.jisuowei.com" target="_blank">Panoda</a> now!
   </div>
 
   <div class="header">
@@ -543,12 +522,7 @@ body {
       <div class="left">
         <img class="logo" src="./images/logo.png">
       </div>
-      <div class="left navi">
-        <a>Fetcher</a>
-        <a>Viewer</a>
-      </div>
       <div class="right github">
-        <a href="https://www.bilibili.com/video/av67624282/" target="_blank">DemoVideo</a>
         <a href="https://github.com/Chisw/MapBrain" target="_blank">GitHub</a>
       </div>
     </div>
@@ -661,22 +635,9 @@ body {
     </div>
   </div>
 
-  <div class="wave"></div>
-
-  <div class="module viewer">
-    <div class="center">
-      <h3 class="title navi-target">Viewer</h3>
-      <h4 class="subtitle">View your panoramic image online or download Viewer.zip for offline using</h4>
-
-      <div class="drop-view">
-        Coming soon
-      </div>
-    </div>
-  </div>
-
   <div class="footer">
     <div class="center">
-      <p>(づ′▽`)づ&emsp;Any suggestions or bugs send email to <a href="mailto:i@jisuowei.com">i@jisuowei.com</a></p>
+      <p><a style="text-decoration: none;" href="http://jisuowei.com" target="_blank"> © jisuowei.com</a></p>
     </div>
   </div>
 
@@ -704,14 +665,10 @@ body {
 
     initMap() {
       const map = new BMap.Map('map', {enableMapClick: false});
-      map.centerAndZoom(new BMap.Point(120.616675, 31.338262), 14);
+      map.centerAndZoom(new BMap.Point(119.45, 32.79), 14);
       map.enableScrollWheelZoom(true);
       
       map.addTileLayer(new BMap.PanoramaCoverageLayer());  // 覆盖区域图层测试
-
-      // const stCtrl = new BMap.PanoramaControl(); //构造全景控件
-      // stCtrl.setOffset(new BMap.Size(20, 20));
-      // map.addControl(stCtrl);//添加全景控件
 
       const navigationControl = new BMap.NavigationControl({
         anchor: BMAP_ANCHOR_TOP_LEFT,
