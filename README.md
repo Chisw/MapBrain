@@ -3,11 +3,7 @@ Baidu Panoramic photo Capture
 
 Visit at <s>mbn.im</s>
 
-http://mapbrain.jisuowei.com
-
-or short
-
-http://mbn.jsw.im
+http://jisuowei.com/i/mapbrain
 
 # Upgrade to Panoda
 
