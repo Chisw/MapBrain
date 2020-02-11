@@ -5,4 +5,4 @@ http://jisuowei.com/app/mbn
 
 # Upgrade to Panoda
 
-http://panoda.jisuowei.com
+https://panoda.jisuowei.com
