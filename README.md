@@ -1,7 +1,7 @@
 # MapBrain
-Baidu Panoramic photo Capture
+Capture Baidu Panoramic photo
 
-http://jisuowei.com/app/mbn
+https://jisuowei.com/app/mbn
 
 # Upgrade to Panoda
 
